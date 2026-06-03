@@ -2,6 +2,8 @@
 
 **Press Ctrl+V with an image in your clipboard — get a file path instead.**
 
+![demo](demo.gif)
+
 Useful when working with AI tools like Claude Code, Cursor, or any terminal app that needs a file path to an image rather than the image itself.
 
 - Screenshot with Win+Shift+S → Ctrl+V → `C:\Users\...\cc-img-20260603.png`
