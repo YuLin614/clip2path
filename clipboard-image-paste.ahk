@@ -22,7 +22,7 @@ psScript := A_ScriptDir "\save-clipboard-image.ps1"
     }
 
     shell := ComObject("WScript.Shell")
-    exec := shell.Exec('powershell -ExecutionPolicy Bypass -NoProfile -File "' . psScript . '"')
+    exec := shell.Exec('powershell -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File "' . psScript . '"')
     imagePath := StrReplace(StrReplace(Trim(exec.StdOut.ReadAll()), "`r", ""), "`n", "")
 
     if (imagePath == "") {
