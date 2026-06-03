@@ -1,61 +1,88 @@
 ﻿# clip2path
 
-Windows system-wide Ctrl+V interceptor: when your clipboard contains an image, it automatically saves the image to a temp file and pastes the file path as text instead. Regular text paste is unaffected.
+**Press Ctrl+V with an image in your clipboard — get a file path instead.**
 
-Useful for AI coding tools (Claude Code, Cursor, etc.) that accept file paths but not raw clipboard images.
+Useful when working with AI tools like Claude Code, Cursor, or any terminal app that needs a file path to an image rather than the image itself.
 
-## How it works
+- Screenshot with Win+Shift+S → Ctrl+V → `C:\Users\...\cc-img-20260603.png`
+- Copy image from browser → Ctrl+V → file path as text
+- Copy text → Ctrl+V → works exactly as normal, zero change
 
-- **AutoHotkey v2** intercepts Ctrl+V system-wide
-- **Win32 `IsClipboardFormatAvailable`** checks for image format instantly (no process spawn)
-- If image detected: PowerShell saves it as PNG to `%TEMP%\cc-img-<timestamp>.png` and AHK pastes the path as text
-- If no image: normal Ctrl+V passthrough
-
-## Requirements
-
-- Windows 10/11
-- PowerShell 5.1 (built-in)
-- AutoHotkey v2 (installed automatically by `install.ps1`)
+---
 
 ## Install
+
+**Step 1 — Clone the repo**
+
+```powershell
+git clone https://github.com/YuLin614/clip2path.git
+cd clip2path
+```
+
+**Step 2 — Run the installer (one command, admin not required)**
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
-This will:
-1. Install AutoHotkey v2 via winget (if not already installed)
-2. Create a startup shortcut so the script runs on login
-3. Launch the script immediately for the current session
+That is it. The installer will:
+- Install AutoHotkey v2 automatically via winget (if not already on your machine)
+- Register the script to run every time you log in
+- Start it immediately — no restart needed
 
-## Usage
+You should see an AutoHotkey icon appear in your system tray. From that point on, Ctrl+V is intercepted when the clipboard has an image.
 
-1. Copy an image to clipboard (e.g. Win+Shift+S snip, or copy from browser)
-2. Press Ctrl+V anywhere
-3. The file path is pasted as text instead of the image
+---
 
-Regular text paste works exactly as before.
+## How to use
+
+1. Take a screenshot with **Win+Shift+S** (or copy any image from anywhere)
+2. Go to wherever you want to reference the image (terminal, chat input, code editor)
+3. Press **Ctrl+V**
+4. A file path like `C:\Users\YourName\AppData\Local\Temp\cc-img-20260603123456.png` is typed in
+
+The image file is saved in your system temp folder. You can read it, attach it, or pass it to any tool that accepts a file path.
+
+Regular text paste is completely unaffected.
+
+---
 
 ## Uninstall
 
 ```powershell
+# Stop the running script
 Get-Process AutoHotkey -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# Remove the startup entry
 Remove-Item "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\clipboard-image-paste.lnk" -ErrorAction SilentlyContinue
 ```
 
-## Files
+Then delete the `clip2path` folder.
 
-| File | Purpose |
-|------|---------|
-| `clipboard-image-paste.ahk` | AHK v2 hotkey script — intercepts Ctrl+V |
-| `save-clipboard-image.ps1` | PowerShell helper — saves clipboard image, returns path |
-| `install.ps1` | One-shot installer — AHK + startup shortcut + launch |
+---
 
-## Limitations
+## Requirements
 
-- ~300-500ms latency when clipboard contains an image (only then, not for text)
-- AHK must be running (tray icon visible) for the hotkey to work
-- Temp files are not auto-cleaned; clear `%TEMP%\cc-img-*.png` manually if needed
+- Windows 10 or 11
+- PowerShell 5.1 (built-in on all modern Windows)
+- winget (built-in on Windows 11; [get it for Windows 10](https://aka.ms/getwinget))
+- AutoHotkey v2 — installed automatically by the installer
+
+---
+
+## Known limitations
+
+- ~300–500ms delay when clipboard has an image (only then, not for text paste)
+- The AHK tray icon must be running for the hotkey to work
+- Temp image files (`%TEMP%\cc-img-*.png`) are not auto-deleted — clean them up manually if disk space matters
+
+---
+
+## How it works (technical)
+
+AutoHotkey v2 intercepts Ctrl+V system-wide. It calls the Win32 API `IsClipboardFormatAvailable` to check for image formats instantly without spawning a process. If an image is detected, a PowerShell helper (`save-clipboard-image.ps1`) saves it as a PNG using `System.Windows.Forms.Clipboard` and returns the path. AHK then types that path using `SendText`. If no image, Ctrl+V passes through unchanged.
+
+---
 
 ## License
 
