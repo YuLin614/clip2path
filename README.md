@@ -9,6 +9,7 @@ Useful when working with AI tools like Claude Code, Cursor, or any terminal app 
 - Screenshot with Win+Shift+S → Ctrl+V → `C:\Users\...\cc-img-20260603.png`
 - Copy image from browser → Ctrl+V → file path as text
 - Copy text → Ctrl+V → works exactly as normal, zero change
+- Paste image in Slack, Discord, Teams, or a browser → image pastes normally
 
 ---
 
@@ -82,7 +83,7 @@ Then delete the `clip2path` folder.
 
 ## How it works (technical)
 
-AutoHotkey v2 intercepts Ctrl+V system-wide. It calls the Win32 API `IsClipboardFormatAvailable` to check for image formats instantly without spawning a process. If an image is detected, a PowerShell helper (`save-clipboard-image.ps1`) saves it as a PNG using `System.Windows.Forms.Clipboard` and returns the path. AHK then types that path using `SendText`. If no image, Ctrl+V passes through unchanged.
+AutoHotkey v2 intercepts Ctrl+V system-wide. It calls the Win32 API `IsClipboardFormatAvailable` to check for image formats instantly without spawning a process. If an image is detected, it checks the active window's process name — apps that natively support image paste (Slack, Discord, Teams, WhatsApp, Chrome, Edge, Firefox, and other browsers) are skipped so the image pastes normally. For all other apps, a PowerShell helper (`save-clipboard-image.ps1`) saves the image as a PNG using `System.Windows.Forms.Clipboard` and returns the path. AHK then types that path using `SendText`. If no image, Ctrl+V passes through unchanged.
 
 ---
 
